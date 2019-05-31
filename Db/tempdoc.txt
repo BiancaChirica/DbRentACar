@@ -1,0 +1,15 @@
+1410 Marcos Model-3 mini-SUV 7072 1 4 NU benzina 781
+1125 Morgan Model-11 Economic 4741 2 2 DA benzina 503
+1623 Buick Model-19 Economic 1463 0 6 NU benzina 555
+2302 Think Model-33 Mini 1762 4 6 NU benzina 713
+2713 Dacia Model-8 SUV 9221 4 7 DA benzina 256
+2828 Yugo Model-21 Mini 4771 1 4 DA benzina 654
+3781 Daihatsu Model-12 Standard 5931 3 7 NU benzina 929
+4862 Dacia Model-24 Intermediar 5024 4 6 NU benzina 639
+4429 Infiniti Model-27 SUV 605 1 7 DA benzina 795
+5434 Dodge Model-7 mini-SUV 2250 3 7 DA benzina 462
+6258 Mini Model-13 Intermediar 9966 1 2 NU benzina 119
+8972 Mercedes Model-5 Standard 5542 4 7 DA benzina 188
+8978 Audi Model-32 SUV 231 0 7 DA benzina 160
+9816 Infiniti Model-22 SUV 2068 3 5 NU benzina 578
+9424 Dodge Model-10 mini-SUV 5535 0 3 DA benzina 270

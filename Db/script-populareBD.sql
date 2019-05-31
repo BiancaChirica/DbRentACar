@@ -10,14 +10,14 @@ DROP TABLE istoric CASCADE CONSTRAINTS
 /
 DROP TABLE drumuri CASCADE CONSTRAINTS
 /
-CREATE TABLE drumuri
+DROP TABLE admini CASCADE CONSTRAINTS
+/
+CREATE TABLE admini
   (
-    id    INT NOT NULL PRIMARY KEY,
-   id_parcare1          INTEGER NOT NULL,
-    id_parcare2       INTEGER NOT NULL,
-    cost_drum     INTEGER NOT NULL,
- CONSTRAINT fk_drumuri_id_parcare_1 FOREIGN KEY (id_parcare) REFERENCES parcari(id_parcare),
-CONSTRAINT fk_drumuri_id_parcare_2 FOREIGN KEY (id_parcare) REFERENCES parcari(id_parcare)
+    id_admin    INT NOT NULL PRIMARY KEY,
+   username VARCHAR2(100) NOT NULL,
+    parola VARCHAR2(100) NOT NULL
+   
   )
 /
 CREATE TABLE parcari
@@ -26,6 +26,16 @@ CREATE TABLE parcari
     oras          VARCHAR2(50) NOT NULL,
     adresa        VARCHAR2(50) NOT NULL,
     numar_telefon VARCHAR2(50) NOT NULL
+  )
+/
+CREATE TABLE drumuri
+  (
+    id_drumuri    INT NOT NULL PRIMARY KEY,
+   id_parcare1          INTEGER NOT NULL,
+    id_parcare2       INTEGER NOT NULL,
+    cost_drum     INTEGER NOT NULL,
+ CONSTRAINT fk_drumuri_id_parcare_1 FOREIGN KEY (id_parcare1) REFERENCES parcari(id_parcare),
+CONSTRAINT fk_drumuri_id_parcare_2 FOREIGN KEY (id_parcare2) REFERENCES parcari(id_parcare)
   )
 /
 CREATE TABLE masini
@@ -41,12 +51,14 @@ CREATE TABLE masini
     optiuni      VARCHAR2(50) NOT NULL,
     combustibil  VARCHAR2(30) NOT NULL,
     numar_note   INT,
+    rezervat   INT,
     CONSTRAINT fk_masini_id_parcare FOREIGN KEY (id_parcare) REFERENCES parcari(id_parcare)
   )
 /
 CREATE TABLE clienti
   (
     id_client     INT NOT NULL PRIMARY KEY,
+	username     VARCHAR2(100) NOT NULL UNIQUE,
     nume          VARCHAR2(100) NOT NULL,
     prenume       VARCHAR2(70) NOT NULL,
     numar_telefon VARCHAR2(30) NOT NULL,
@@ -83,7 +95,7 @@ SET SERVEROUTPUT ON;
 DECLARE
 TYPE varr IS VARRAY(10000) OF VARCHAR2(255);
 -- Pentru masina
-lista_marca varr  := varr('Abarth','Alfa Romeo','Asia Motors','Aston Martin','Audi','Austin','Autobianchi','Bentley','BMW','Bugatti','Buick','Cadillac','Carver','Chevrolet','Chrysler','Citroen','Corvette','Dacia','Daewoo','Daihatsu','Daimler','Datsun','Dodge','Donkervoort','DS','Ferrari','Fiat','Fisker','Ford','FSO','Galloper','Honda','Hummer','Hyundai','Infiniti','Innocenti','Jaguar','Jeep','Josse','Kia','Lada','Lamborghini','Lancia','Land Rover','Landwind','Lexus','Lincoln','Lotus','Marcos','Maserati','Maybach','Mazda','McLaren','Mega','Mercedes','Mercury','MG','Mini','Mitsubishi','Morgan','Morris','Nissan','Noble','Opel','Peugeot','PGO','Pontiac','Porsche','Princess','Renault','Rolls-Royce','Rover','Saab','Seat','Skoda','Smart','Spectre','Ssang','Yong','Subaru','Suzuki','Talbot','Tesla','Think','Toyota','Triumph','TVR','Volkswagen','Volvo','Yugo');
+lista_marca varr  := varr('Abarth','Alfa-Romeo','Asia-Motors','Aston-Martin','Audi','Austin','Autobianchi','Bentley','BMW','Bugatti','Buick','Cadillac','Carver','Chevrolet','Chrysler','Citroen','Corvette','Dacia','Daewoo','Daihatsu','Daimler','Datsun','Dodge','Donkervoort','DS','Ferrari','Fiat','Fisker','Ford','FSO','Galloper','Honda','Hummer','Hyundai','Infiniti','Innocenti','Jaguar','Jeep','Josse','Kia','Lada','Lamborghini','Lancia','Land Rover','Landwind','Lexus','Lincoln','Lotus','Marcos','Maserati','Maybach','Mazda','McLaren','Mega','Mercedes','Mercury','MG','Mini','Mitsubishi','Morgan','Morris','Nissan','Noble','Opel','Peugeot','PGO','Pontiac','Porsche','Princess','Renault','Rolls-Royce','Rover','Saab','Seat','Skoda','Smart','Spectre','Ssang','Yong','Subaru','Suzuki','Talbot','Tesla','Think','Toyota','Triumph','TVR','Volkswagen','Volvo','Yugo');
 lista_combustibil varr := varr ('benzina','motorina','electric');
 lista_clasa varr      := varr ('SUV','Premium','Standard','Mini','Economic','Intermediar','mini-SUV');
 --Pentru clienti
@@ -104,6 +116,7 @@ lista_clasa varr      := varr ('SUV','Premium','Standard','Mini','Economic','Int
     v_id_parcare_preluare INTEGER ;
 	
   -- CLienti :
+  v_username VARCHAR2(255);
     v_nume          VARCHAR2(255);
     v_prenume       VARCHAR2(255);   
     v_email         VARCHAR2(255);
@@ -134,29 +147,23 @@ v_locuri      INTEGER ;
 v_combustibil VARCHAR2(100);
 v_optiuni     VARCHAR2(20); --da/nu
 v_nr_note     INTEGER;
+v_rezervat INTEGER;
 
 BEGIN
-
---------------Drumuri------------
-DBMS_OUTPUT.PUT_LINE('Inserarea a drumurilor...');
-  FOR v_i IN 1..100 LOOP
-       SELECT COUNT(*) INTO v_temp1 FROM parcari;
-    LOOP
-      v_id_parcare1 := TRUNC(DBMS_RANDOM.VALUE(0,v_temp1))+1;
-      v_id_parcare2 := TRUNC(DBMS_RANDOM.VALUE(0,v_temp1))+1;
-      v_temp := 1;
-      if( v_id_parcare1 <> v_id_parcare2) then
-       SELECT COUNT(*) INTO v_temp FROM drumuri WHERE (id_parcare1 = v_id_parcare1 AND id_parcare2 = v_id_parcare2) OR (id_parcare2 = v_id_parcare1 AND id_parcare1 = v_id_parcare2) ;
-      end if;
-      EXIT WHEN v_temp=0;
+------------Admini-------------------------------------------------
+  DBMS_OUTPUT.PUT_LINE('Inserarea a adminilor...');
+  FOR v_i IN 1..5 LOOP
+  
+      v_username := 'Admin'||v_i ;
+      v_parola := 'parola'||v_i ;
+ 
+    INSERT INTO admini VALUES
+      (v_i, v_username, v_parola);
       
-    END LOOP;
-    cost_drum := TRUNC(DBMS_RANDOM.VALUE(10,10000))+1;
-    INSERT INTO drumuri VALUES
-      (v_i, v_id_parcare1,  v_id_parcare2, cost_drum);
-    
   END LOOP;
-  DBMS_OUTPUT.PUT_LINE('Inserarea drumurilor reusita !');
+  
+  DBMS_OUTPUT.PUT_LINE('Inserarea adminilor reusita !');
+  
 
 ------------PARCARI-------------------------------------------------
   DBMS_OUTPUT.PUT_LINE('Inserarea a parcarilor...');
@@ -182,22 +189,44 @@ DBMS_OUTPUT.PUT_LINE('Inserarea a drumurilor...');
   END LOOP;
   DBMS_OUTPUT.PUT_LINE('Inserarea parcarilor reusita !');
   
+--------------Drumuri------------
+DBMS_OUTPUT.PUT_LINE('Inserarea a drumurilor...');
+  FOR v_i IN 1..500 LOOP
+       SELECT COUNT(*) INTO v_temp1 FROM parcari;
+    LOOP
+      v_id_parcare1 := TRUNC(DBMS_RANDOM.VALUE(0,v_temp1))+1;
+      v_id_parcare2 := TRUNC(DBMS_RANDOM.VALUE(0,v_temp1))+1;
+      v_temp := 1;
+      if( v_id_parcare1 <> v_id_parcare2) then
+       SELECT COUNT(*) INTO v_temp FROM drumuri WHERE (id_parcare1 = v_id_parcare1 AND id_parcare2 = v_id_parcare2) OR (id_parcare2 = v_id_parcare1 AND id_parcare1 = v_id_parcare2) ;
+      end if;
+      EXIT WHEN v_temp=0;      
+    END LOOP;
+    
+    cost_drum := TRUNC(DBMS_RANDOM.VALUE(10,10000))+1;
+    INSERT INTO drumuri VALUES
+      (v_i, v_id_parcare1,  v_id_parcare2, cost_drum);
+    
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('Inserarea drumurilor reusita !');
+  
   -----------------------MASINI -----------------------------------------------------------------------------------
   DBMS_OUTPUT.PUT_LINE('Inserarea masinilor...');
-  FOR v_i IN 1..500 LOOP
+  FOR v_i IN 1..10000 LOOP
   
     --Intr-o parcare incap doar 1000 de masini
     SELECT COUNT(*) INTO v_temp1 FROM parcari;
+  
     LOOP
       v_id_parcare := TRUNC(DBMS_RANDOM.VALUE(0,v_temp1))+1;
       SELECT COUNT(*) INTO v_temp FROM masini WHERE id_parcare = v_id_parcare ;
-      EXIT WHEN v_temp <= 10000;
+      EXIT WHEN v_temp <= 100000;
     END LOOP;
     
     -- un rand poate fi diferit doar printr-un atribut
     LOOP
       v_marca                         := lista_marca(TRUNC(DBMS_RANDOM.VALUE(0,lista_marca.count))            +1);
-      v_model                         := 'Model ' || TRUNC(DBMS_RANDOM.VALUE(1,40))       ;
+      v_model                         := 'Model-' || TRUNC(DBMS_RANDOM.VALUE(1,40))       ;
       v_clasa                         := lista_clasa(TRUNC(DBMS_RANDOM.VALUE(0,lista_clasa.count))            +1);
       v_combustibil                   := lista_combustibil(TRUNC(DBMS_RANDOM.VALUE(0,lista_combustibil.count))+1);
       v_locuri                        := TRUNC(DBMS_RANDOM.VALUE(1,7))                                        +1 ;
@@ -222,6 +251,7 @@ DBMS_OUTPUT.PUT_LINE('Inserarea a drumurilor...');
     v_nota    := DBMS_RANDOM.VALUE(0,5) ;
     v_nr_note := TRUNC(DBMS_RANDOM.VALUE(0,1000))+1 ;
     v_pret := DBMS_RANDOM.VALUE(30,10000) ;
+    v_rezervat :=DBMS_RANDOM.VALUE(0,1);
     INSERT
     INTO masini VALUES
       (
@@ -235,19 +265,31 @@ DBMS_OUTPUT.PUT_LINE('Inserarea a drumurilor...');
         v_locuri,
         v_optiuni,
         v_combustibil,
-        v_nr_note
+        v_nr_note,
+        v_rezervat
       );
   END LOOP ;
   DBMS_OUTPUT.PUT_LINE('Inserarea a masinilor reusita !');  
   
   ----------------------CLIENTI -------------------------------------------------
   DBMS_OUTPUT.PUT_LINE('Inserarea clientilor...');
-FOR v_i IN 1..500 LOOP
+FOR v_i IN 1..10000 LOOP
 v_nume := lista_nume(TRUNC(DBMS_RANDOM.VALUE(0,lista_nume.count))+1);
 v_prenume := lista_prenume(TRUNC(DBMS_RANDOM.VALUE(0,lista_prenume.count))+1);
 
       v_telefon := 0 || 7 || TRUNC(DBMS_RANDOM.VALUE(0,10)) || TRUNC(DBMS_RANDOM.VALUE(0,10)) || TRUNC(DBMS_RANDOM.VALUE(0,10)) || TRUNC(DBMS_RANDOM.VALUE(0,10))|| TRUNC(DBMS_RANDOM.VALUE(0,10))|| TRUNC(DBMS_RANDOM.VALUE(0,10))|| TRUNC(DBMS_RANDOM.VALUE(0,10))|| TRUNC(DBMS_RANDOM.VALUE(0,10)) ;
  	
+	--username unic
+	 v_temp1 :=TRUNC(DBMS_RANDOM.VALUE(0,100000));
+	 LOOP         
+         select count(*) into v_temp from clienti where username = v_nume||v_temp1;
+         exit when v_temp=0;
+         v_temp1 :=  TRUNC(DBMS_RANDOM.VALUE(0,100));
+      END LOOP;  
+	  
+	  v_username := v_nume||v_temp1;
+	
+	
 	--email unic
 	v_temp:='';
       v_email := lower(v_nume ||'.'|| v_prenume);
@@ -280,14 +322,14 @@ v_prenume := lista_prenume(TRUNC(DBMS_RANDOM.VALUE(0,lista_prenume.count))+1);
     WHEN v_temp=0;
     END LOOP;
 
-INSERT INTO clienti VALUES(v_i,v_nume,v_prenume,v_telefon,v_email,v_parola,v_numar_permis);
+INSERT INTO clienti VALUES(v_i,v_username,v_nume,v_prenume,v_telefon,v_email,v_parola,v_numar_permis);
   END LOOP ;
   DBMS_OUTPUT.PUT_LINE('Inserarea clientilor reusita !');  
   
   ------------------------REZERVARI -----------------------------------------------------
   
  DBMS_OUTPUT.PUT_LINE('Inserarea rezervarilor...');
-  FOR v_i IN 1..500 LOOP  
+  FOR v_i IN 1..5000 LOOP  
   
       SELECT COUNT(*) INTO v_temp1 FROM clienti;
       v_id_client := TRUNC(DBMS_RANDOM.VALUE(0,v_temp1))+1;
@@ -311,7 +353,7 @@ INSERT INTO clienti VALUES(v_i,v_nume,v_prenume,v_telefon,v_email,v_parola,v_num
   ------------------ ISTORIC -------------------------------------------------------------
 
   DBMS_OUTPUT.PUT_LINE('Inserarea istoricului...');
-  FOR v_i IN 1..500 LOOP  
+  FOR v_i IN 1..3000 LOOP  
   
    SELECT COUNT(*) INTO v_temp1 FROM clienti;
       v_id_client := TRUNC(DBMS_RANDOM.VALUE(0,v_temp1))+1;
@@ -324,4 +366,7 @@ INSERT INTO clienti VALUES(v_i,v_nume,v_prenume,v_telefon,v_email,v_parola,v_num
   DBMS_OUTPUT.PUT_LINE('Inserarea istoricului reusita !');  
   -- end-ul de la begin
 END ; 
-
+/
+CREATE INDEX masini_libere ON masini(id_parcare,rezervat);
+/
+CREATE INDEX username_password ON clienti(username,parola);
